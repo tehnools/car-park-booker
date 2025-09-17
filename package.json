@@ -5,6 +5,7 @@
   "description": "A car park booking application",
   "scripts": {
     "dev": "turbo run dev",
+    "create:schema": "pnpm --filter ./apps/backend run create:schema",
     "format": "prettier --write ."
   },
   "devDependencies": {

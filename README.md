@@ -34,3 +34,10 @@ pnpm run dev
 - Turborepo: Same reason as frontend.
 - ts-node: I like using ts-node for small projects to avoid the build step. Proper project i'll use tsc to compile or a bundler like esbuild or rollup.
 - sqlite3: Lightweight database that requires no setup. Perfect for this small project.
+
+## Setting up simple schema
+
+- Created 2 tables bookings and temp_bookings.
+- bookings table is the main table that stores the booking date and user name.
+- temp_bookings table just an idea i had to store the booking request temporarily. might no necessarily need it.
+- bookings table has a unique constraint on the booking_date to prevent double booking. Simple way to do it.

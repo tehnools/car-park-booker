@@ -1,5 +1,8 @@
 // src/index.ts
 import Fastify from "fastify";
+import sqlite3 from "sqlite3";
+
+const db = new sqlite3.Database("./db.sqlite");
 
 const fastify = Fastify({ logger: true });
 const port = Number(process.env.PORT) || 3000;
