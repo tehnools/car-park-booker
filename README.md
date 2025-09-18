@@ -64,4 +64,4 @@ I was unable to run those libraries due to binding issues related to my M1 Mac. 
 added schema validation to prevent invalid data received and sent
 ![alt text](image.png)
 
-## Moving on to the fronet end!
+## Moving on to the frontend!
