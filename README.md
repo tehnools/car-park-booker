@@ -65,3 +65,19 @@ added schema validation to prevent invalid data received and sent
 ![alt text](image.png)
 
 ## Moving on to the frontend!
+
+started with a basic form with name,date after testing
+
+I thought what if name is empty or date is invalid. So i added some basic validation. The dates cannot be booked in the past. so i added the code to disable the dates in date picker.
+
+Then after getting an answer to a question where parts of the date can be booked i assumed that usually i book in hours so i split time slots for times in hours.
+
+I also thought that maybe every 10 seconds id want swr to refresh the dates so i can get latest dates availble. On top of that click on the dates should refresh the component.
+
+## Things that could be done better
+
+- Add testing to both frontend and backend.
+- Add better error handling and logging.
+- compile or bundle the backend code.
+- user who booked should have a list of their bookings.
+- adding a queue system to handle high traffic.

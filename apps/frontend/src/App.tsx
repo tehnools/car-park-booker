@@ -64,6 +64,7 @@ function App() {
         padding: 24,
         border: "1px solid #eee",
         borderRadius: 8,
+        boxSizing: "border-box",
       }}
     >
       <h2>Book a Parking Lot</h2>
@@ -75,7 +76,7 @@ function App() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            style={{ width: "100%", padding: 8, marginTop: 4 }}
+            style={{ width: "100%", padding: "8px 12px", marginTop: 4, boxSizing: "border-box" }}
           />
         </label>
         <label>
@@ -91,7 +92,7 @@ function App() {
             }}
             required
             min={new Date().toISOString().slice(0, 10)}
-            style={{ width: "100%", padding: 8, marginTop: 4 }}
+            style={{ width: "100%", padding: "8px 12px", marginTop: 4, boxSizing: "border-box" }}
           />
         </label>
         <label>
@@ -100,57 +101,13 @@ function App() {
             value={time}
             onChange={(e) => setTime(e.target.value)}
             required
-            style={{ width: "100%", padding: 8, marginTop: 4 }}
+            style={{ width: "100%", padding: "8px 12px", marginTop: 4, boxSizing: "border-box" }}
             disabled={!date || isLoading}
           >
             <option value="" disabled>
               {isLoading ? "Loading..." : date ? "Select a time" : "Select a date first"}
             </option>
             {(() => {
-              // Helper to safely construct a Date in NZ time
-              function safeGetNZDate(dateStr: string, timeStr: string) {
-                if (!dateStr || !/^[\d]{2}:[\d]{2}$/.test(timeStr)) return null;
-                const tz = "Pacific/Auckland";
-                try {
-                  const d = new Date(
-                    new Date(`${dateStr}T${timeStr}:00`).toLocaleString("en-GB", { timeZone: tz })
-                  );
-                  if (isNaN(d.getTime())) return null;
-                  return d;
-                } catch {
-                  return null;
-                }
-              }
-
-              function isNZToday(selected: string) {
-                if (!selected || !/^[\d]{4}-[\d]{2}-[\d]{2}$/.test(selected)) return false;
-                const tz = "Pacific/Auckland";
-                let nowNZ: Date;
-                try {
-                  nowNZ = new Date(new Date().toLocaleString("en-CA", { timeZone: tz }));
-                  if (isNaN(nowNZ.getTime())) return false;
-                } catch {
-                  return false;
-                }
-                let todayNZ = "";
-                try {
-                  todayNZ = nowNZ.toISOString().slice(0, 10);
-                } catch {
-                  return false;
-                }
-                return selected === todayNZ;
-              }
-
-              const isToday = isNZToday(date);
-              const slots = getDefaultTimeSlots(isToday, getBookedSlots()).filter((slot) => {
-                if (!date) return false;
-                if (isToday) {
-                  const d = safeGetNZDate(date, slot);
-                  return !!d;
-                } else {
-                  return true;
-                }
-              });
               if (!date) {
                 return (
                   <option value="" disabled>
@@ -158,6 +115,7 @@ function App() {
                   </option>
                 );
               }
+              const slots = getDefaultTimeSlots(getBookedSlots());
               if (slots.length === 0) {
                 return (
                   <option value="" disabled>
@@ -165,28 +123,11 @@ function App() {
                   </option>
                 );
               }
-              const bookedSlots = getBookedSlots();
-              let currentHour = 0;
-              if (isToday) {
-                const tz = "Pacific/Auckland";
-                const nowNZ = new Date(new Date().toLocaleString("en-NZ", { timeZone: tz }));
-                currentHour = nowNZ.getHours();
-              }
-              return slots.map((slot) => {
-                const isBooked = bookedSlots.includes(slot);
-                const hour = parseInt(slot.slice(0, 2), 10);
-                const isPast = isToday && hour <= currentHour;
-                return (
-                  <option
-                    key={slot}
-                    value={slot}
-                    disabled={isBooked || isPast}
-                    style={isBooked || isPast ? { color: "#aaa" } : {}}
-                  >
-                    {slot} {isBooked ? "(Booked)" : isPast ? "(Past)" : ""}
-                  </option>
-                );
-              });
+              return slots.map((slot) => (
+                <option key={slot} value={slot}>
+                  {slot}
+                </option>
+              ));
             })()}
           </select>
         </label>
@@ -194,23 +135,22 @@ function App() {
           Submit
         </button>
       </form>
-      {message && <p style={{ marginTop: 16 }}>{message}</p>}
+      <div style={{ minHeight: 24, marginTop: 16, width: "100%", boxSizing: "border-box" }}>
+        {message && <p style={{ margin: 0 }}>{message}</p>}
+      </div>
     </div>
   );
 }
 
-// Fallback: generate all 1-hour slots from 8am to 6pm as "HH:mm" strings
-function getDefaultTimeSlots(isToday: boolean, datesTaken: string[] = []) {
+function getDefaultTimeSlots(datesTaken: string[] = []) {
   const slots: string[] = [];
   const tz = "Pacific/Auckland";
-  let nowHour = 0;
-  if (isToday) {
-    const now = new Date(new Date().toLocaleString("en-NZ", { timeZone: tz }));
-    nowHour = now.getHours();
-  }
+  const now = new Date(new Date().toLocaleString("en-NZ", { timeZone: tz }));
+  const nowHour = now.getHours();
+
   for (let hour = 8; hour <= 21; hour++) {
     const h = hour.toString().padStart(2, "0");
-    if (isToday && (hour <= nowHour || datesTaken.includes(`${h}:00`))) continue;
+    if (hour <= nowHour || datesTaken.includes(`${h}:00`)) continue;
     slots.push(`${h}:00`);
   }
   return slots;
