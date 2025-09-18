@@ -34,6 +34,12 @@ fastify.get(
   "/bookings",
   {
     schema: {
+      querystring: {
+        type: "object",
+        properties: {
+          month: { type: "string", pattern: "^\\d{4}-\\d{2}$" }, // YYYY-MM
+        },
+      },
       response: {
         200: {
           type: "array",
@@ -52,7 +58,15 @@ fastify.get(
   },
   async (request, reply) => {
     try {
-      const res = db.exec("SELECT * FROM bookings");
+      const { month } = request.query as { month?: string };
+      let query = "SELECT * FROM bookings";
+      let params: any[] = [];
+      if (month) {
+        // SQLite: strftime('%Y-%m', booking_date) = 'YYYY-MM'
+        query += " WHERE strftime('%Y-%m', booking_date) = ?";
+        params.push(month);
+      }
+      const res = db.exec(query, params);
       const rows = res[0]
         ? res[0].values.map((row: any[]) => {
             const obj: any = {};
@@ -74,10 +88,11 @@ fastify.post(
     schema: {
       body: {
         type: "object",
-        required: ["name", "date"],
+        required: ["name", "date", "time"],
         properties: {
           name: { type: "string" },
           date: { type: "string", format: "date" },
+          time: { type: "string", pattern: "^\\d{2}:\\d{2}$" },
         },
       },
       response: {
@@ -88,13 +103,13 @@ fastify.post(
             date: { type: "string", format: "date" },
           },
         },
-        409: {
+        "4xx": {
           type: "object",
           properties: {
             error: { type: "string" },
           },
         },
-        500: {
+        "5xx": {
           type: "object",
           properties: {
             error: { type: "string" },
@@ -104,17 +119,27 @@ fastify.post(
     },
   },
   async (request, reply) => {
-    const { name, date } = request.body as { name: string; date: string };
+    const { name, date, time } = request.body as { name: string; date: string; time: string };
     try {
-      db.run("INSERT INTO bookings (name, booking_date) VALUES (?, ?)", [name, date]);
+      const tz = "Pacific/Auckland";
+      const bookingDateTime = new Date(
+        new Date(`${date}T${time}:00`).toLocaleString("en-US", { timeZone: tz })
+      );
+      const now = new Date(new Date().toLocaleString("en-US", { timeZone: tz }));
+      if (bookingDateTime <= now) {
+        return reply.status(400).send({ error: "Cannot book a date/time in the past." });
+      }
+      db.run("INSERT INTO bookings (name, booking_date) VALUES (?, ?)", [name, `${date} ${time}`]);
       writeDatabase();
 
-      reply.status(201).send({ name, date });
+      return reply.status(201).send({ name, date, time });
     } catch (error: any) {
       if (error.message && error.message.includes("UNIQUE constraint failed")) {
-        reply.status(409).send({ error: "Booking already exists for this date, try another date" });
+        return reply
+          .status(409)
+          .send({ error: "Booking already exists for this date, try another date" });
       } else {
-        reply.status(500).send({ error: "Database error" });
+        return reply.status(500).send({ error: "Database error" });
       }
     }
   }
