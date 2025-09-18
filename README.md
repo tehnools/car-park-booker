@@ -60,3 +60,8 @@ Testing the queries and unique constraint manual query.
 I was unable to run those libraries due to binding issues related to my M1 Mac. so i ended up using sql.js the most pure client side sqlite implementation.
 
 ## adding schema validation
+
+added schema validation to prevent invalid data received and sent
+![alt text](image.png)
+
+## Moving on to the fronet end!
