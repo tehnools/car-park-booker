@@ -55,6 +55,8 @@ pnpm run dev
 Testing the queries and unique constraint manual query.
 ![alt text](querytest.png)
 
-### sqlite3, sqlite issues
+## sqlite3, sqlite issues
 
 I was unable to run those libraries due to binding issues related to my M1 Mac. so i ended up using sql.js the most pure client side sqlite implementation.
+
+## adding schema validation
