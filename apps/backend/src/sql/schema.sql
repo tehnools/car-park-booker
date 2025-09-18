@@ -15,7 +15,6 @@ CREATE TABLE IF NOT EXISTS temp_bookings (
 CREATE TABLE IF NOT EXISTS bookings (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   booking_date DATETIME2 NOT NULL UNIQUE,
-  session_id INTEGER,
   name TEXT
   );
 

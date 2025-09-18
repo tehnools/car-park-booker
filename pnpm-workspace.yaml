@@ -2,4 +2,7 @@ packages:
   - apps/*
 
 ignoredBuiltDependencies:
+  - '@swc/core'
+  - better-sqlite3
+  - esbuild
   - sqlite3

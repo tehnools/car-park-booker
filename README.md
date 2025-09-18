@@ -8,12 +8,20 @@
 
 # Getting Started
 
+## Create schema
+
+```bash
+pnpm run create:schema
+```
+
+## Run the applications
+
 ```bash
 pnpm install
 pnpm run dev
 ```
 
-# Thoughts ane prayers
+# Thoughts and prayers
 
 ## Choice of stack
 
@@ -41,3 +49,12 @@ pnpm run dev
 - bookings table is the main table that stores the booking date and user name.
 - temp_bookings table just an idea i had to store the booking request temporarily. might no necessarily need it.
 - bookings table has a unique constraint on the booking_date to prevent double booking. Simple way to do it.
+
+## Test drive schema
+
+Testing the queries and unique constraint manual query.
+![alt text](querytest.png)
+
+### sqlite3, sqlite issues
+
+I was unable to run those libraries due to binding issues related to my M1 Mac. so i ended up using sql.js the most pure client side sqlite implementation.
